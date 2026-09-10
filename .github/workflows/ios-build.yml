@@ -3,42 +3,55 @@ name: Build iOS App
 on:
   push:
     branches: [main]
-  workflow_dispatch: # Allows you to manually trigger the build from the GitHub website!
+  workflow_dispatch:
 
 jobs:
   build-ios:
-    runs-on: macos-14 # Runs on GitHub's Apple Silicon (M1/M2) Mac runners in the cloud
+    runs-on: macos-14
+    timeout-minutes: 30
 
     steps:
-      # 1. Check out your source code from GitHub
+      # 1. Check out source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Set up Node.js environment
+      # 2. Select Xcode version explicitly (prevents version mismatch errors)
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      # 3. Set up Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
 
-      # 3. Install JavaScript dependencies
+      # 4. Install JavaScript dependencies
       - name: Install NPM Dependencies
         run: npm install
 
-      # 4. Set up Ruby & CocoaPods
+      # 5. Set up Ruby & CocoaPods
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2"
           bundler-cache: true
 
-      # 5. Install iOS Pods
+      # 6. Cache CocoaPods (saves 3-5 minutes on repeat builds)
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: pods-
+
+      # 7. Install iOS Pods
       - name: Install CocoaPods
         run: |
           cd ios
-          pod install
+          pod install --repo-update
 
-      # 6. Build the iOS App with Xcode (Simulator Build - No paid Apple cert needed)
+      # 8. Build the iOS App (Simulator - no Apple cert needed)
       - name: Build iOS App with Xcode
         run: |
           cd ios
@@ -49,19 +62,31 @@ jobs:
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
+            -quiet \
+            ONLY_ACTIVE_ARCH=NO \
+            EXCLUDED_ARCHS='' \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
-      # 7. Package the built app into a ZIP file
+      # 9. Package the built app into a ZIP file
       - name: Package App
         run: |
           cd ios/build/Build/Products/Release-iphonesimulator/
-          zip -r kp_scan_ios_simulator.zip kp_scan.app
+          if [ -d "kp_scan.app" ]; then
+            zip -r kp_scan_ios_simulator.zip kp_scan.app
+            echo "Build successful! App size: $(du -h kp_scan_ios_simulator.zip | cut -f1)"
+          else
+            echo "ERROR: kp_scan.app not found in build output!"
+            ls -la
+            exit 1
+          fi
 
-      # 8. Upload the build artifact to GitHub
+      # 10. Upload the build artifact to GitHub
       - name: Upload iOS Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: kp-scan-ios-build
           path: ios/build/Build/Products/Release-iphonesimulator/kp_scan_ios_simulator.zip
+          retention-days: 30

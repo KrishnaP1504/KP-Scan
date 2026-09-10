@@ -35,5 +35,15 @@ target 'kp_scan' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
     )
+
+    # Fix: Force all pods to use the same minimum deployment target as the app.
+    # Prevents Xcode 15 warnings about pods targeting iOS 9.0/10.0.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 13.4
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
+        end
+      end
+    end
   end
 end
