@@ -47,8 +47,11 @@ jobs:
             -scheme kp_scan \
             -configuration Release \
             -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
 
       # 7. Package the built app into a ZIP file
       - name: Package App
