@@ -6,29 +6,29 @@ A modern, fast, and feature-rich document scanner application built with **React
 
 ## Features
 
-- 📸 **High-Quality Document Scanner**
+-    **High-Quality Document Scanner**
   - Custom camera integration powered by Android CameraX.
   - Multi-page batch scanning mode with auto-focus and flash controls.
   - Gallery import support for both images and existing PDF files.
 
--  **Interactive Corner Cropping & Rotation**
+-    **Interactive Corner Cropping & Rotation**
   - Fine-tune scanned page boundaries with an interactive corner-adjustment overlay.
   - 90-degree fast rotations and orientation adjustment.
 
--  **Smart Document Filters**
+-    **Smart Document Filters**
   - **Magic Color:** Enhances contrast, balances lighting, and clarifies text.
   - **Grayscale / B&W:** Removes colored shadows for crisp, clean office scans.
   - **Original:** Keeps true photo fidelity.
 
--  **Physical PDF Compression**
+-    **Physical PDF Compression**
   - Real byte-level compression that reduces physical PDF size on disk without sacrificing readability.
   - High, low, and custom compression presets with live size previews.
 
--  **Merge & Combine Documents**
+-    **Merge & Combine Documents**
   - Combine multiple scans, imported phone photos, and external PDFs into a single master document.
   - Easy reordering of pages and individual file removal.
 
--  **Local & Cloud Storage Options**
+-    **Local & Cloud Storage Options**
   - Save as PDF or high-resolution JPEG directly to your phone's storage.
   - Google Drive cloud backup integration for seamless cross-device synchronization.
   - **Privacy First:** All scans stay private on your local device storage.
