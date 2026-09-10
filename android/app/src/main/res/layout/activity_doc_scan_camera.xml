@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Document Target Frame Overlay -->
+    <View
+        android:id="@+id/documentFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="140dp"
+        android:layout_marginBottom="210dp"
+        android:background="@drawable/camera_overlay_frame" />
+
+    <!-- Top Action Bar -->
+    <RelativeLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingTop="36dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp">
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_camera_close"
+            android:contentDescription="Close"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnFlash"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_flash_off"
+            android:contentDescription="Flash"
+            android:scaleType="centerInside" />
+    </RelativeLayout>
+
+    <!-- Scanning... hold steady banner -->
+    <TextView
+        android:id="@+id/tvStatusPill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/topBar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/pill_banner_bg"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="Scanning... hold steady"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Bottom Controls Container -->
+    <LinearLayout
+        android:id="@+id/bottomControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingBottom="16dp">
+
+        <!-- Shutter Row -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:paddingStart="36dp"
+            android:paddingEnd="36dp">
+
+            <!-- Gallery Button -->
+            <ImageButton
+                android:id="@+id/btnGallery"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/circle_button_bg"
+                android:src="@drawable/ic_gallery_thumb"
+                android:contentDescription="Gallery"
+                android:scaleType="centerInside" />
+
+            <!-- Capture Shutter Button -->
+            <FrameLayout
+                android:id="@+id/btnShutter"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/shutter_button_bg"
+                android:clickable="true"
+                android:focusable="true">
+
+                <View
+                    android:layout_width="62dp"
+                    android:layout_height="62dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/shutter_button_inner" />
+            </FrameLayout>
+        </RelativeLayout>
+
+        <!-- Mode Toggle Pill (Manual / Auto capture) -->
+        <LinearLayout
+            android:id="@+id/modeToggleContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/mode_pill_container_bg"
+            android:padding="3dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnModeManual"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Manual"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnModeAuto"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/mode_pill_selected_bg"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Auto capture"
+                android:textColor="#000000"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Privacy / Access info text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvAccessInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KP Scan will have access only to the images that you scan"
+                android:textColor="#CCFFFFFF"
+                android:textSize="11sp"
+                android:gravity="center" />
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/ic_info_circle"
+                android:contentDescription="Info" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>
