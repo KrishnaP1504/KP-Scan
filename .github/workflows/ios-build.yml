@@ -8,14 +8,14 @@ on:
 jobs:
   build-ios:
     runs-on: macos-14
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       # 1. Check out source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Select Xcode version explicitly (prevents version mismatch errors)
+      # 2. Select Xcode version explicitly
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
 
@@ -37,7 +37,7 @@ jobs:
           ruby-version: "3.2"
           bundler-cache: true
 
-      # 6. Cache CocoaPods (saves 3-5 minutes on repeat builds)
+      # 6. Cache CocoaPods
       - name: Cache CocoaPods
         uses: actions/cache@v4
         with:
@@ -51,8 +51,10 @@ jobs:
           cd ios
           pod install --repo-update
 
-      # 8. Build the iOS App (Simulator - no Apple cert needed)
-      - name: Build iOS App with Xcode
+      # ============================================
+      # BUILD 1: Simulator Build (for testing/verification)
+      # ============================================
+      - name: Build iOS Simulator App
         run: |
           cd ios
           xcodebuild \
@@ -61,32 +63,72 @@ jobs:
             -configuration Release \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build \
+            -derivedDataPath build-simulator \
             -quiet \
             ONLY_ACTIVE_ARCH=NO \
-            EXCLUDED_ARCHS='' \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             COMPILER_INDEX_STORE_ENABLE=NO
 
-      # 9. Package the built app into a ZIP file
-      - name: Package App
+      - name: Package Simulator Build
         run: |
-          cd ios/build/Build/Products/Release-iphonesimulator/
+          cd ios/build-simulator/Build/Products/Release-iphonesimulator/
           if [ -d "kp_scan.app" ]; then
             zip -r kp_scan_ios_simulator.zip kp_scan.app
-            echo "Build successful! App size: $(du -h kp_scan_ios_simulator.zip | cut -f1)"
+            echo "Simulator build successful! Size: $(du -h kp_scan_ios_simulator.zip | cut -f1)"
           else
-            echo "ERROR: kp_scan.app not found in build output!"
+            echo "ERROR: Simulator kp_scan.app not found!"
             ls -la
             exit 1
           fi
 
-      # 10. Upload the build artifact to GitHub
-      - name: Upload iOS Build Artifact
+      - name: Upload Simulator Build
         uses: actions/upload-artifact@v4
         with:
-          name: kp-scan-ios-build
-          path: ios/build/Build/Products/Release-iphonesimulator/kp_scan_ios_simulator.zip
+          name: kp-scan-simulator-build
+          path: ios/build-simulator/Build/Products/Release-iphonesimulator/kp_scan_ios_simulator.zip
+          retention-days: 30
+
+      # ============================================
+      # BUILD 2: Real iPhone .ipa (for Sideloadly)
+      # ============================================
+      - name: Build iOS Device App
+        run: |
+          cd ios
+          xcodebuild \
+            -workspace kp_scan.xcworkspace \
+            -scheme kp_scan \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build-device \
+            -quiet \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Package iPhone .ipa
+        run: |
+          cd ios/build-device/Build/Products/Release-iphoneos/
+          if [ -d "kp_scan.app" ]; then
+            # Create .ipa structure (Payload/AppName.app)
+            mkdir -p Payload
+            cp -r kp_scan.app Payload/
+            zip -r kp_scan.ipa Payload
+            echo "iPhone .ipa build successful! Size: $(du -h kp_scan.ipa | cut -f1)"
+          else
+            echo "ERROR: Device kp_scan.app not found!"
+            ls -la
+            exit 1
+          fi
+
+      - name: Upload iPhone .ipa
+        uses: actions/upload-artifact@v4
+        with:
+          name: kp-scan-iphone-ipa
+          path: ios/build-device/Build/Products/Release-iphoneos/kp_scan.ipa
           retention-days: 30
