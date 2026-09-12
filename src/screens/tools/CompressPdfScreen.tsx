@@ -19,6 +19,7 @@ import { useAlert } from '../../context/AlertContext';
 import { ScannedDocument } from '../../types/document';
 import { FileStorageService, formatFileSize } from '../../services/FileStorageService';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { BottomToast } from '../../components/BottomToast';
 import { Colors } from '../../constants/colors';
 import { normalizeFont } from '../../utils/responsive';
 import RNFS from 'react-native-fs';
@@ -29,6 +30,14 @@ export const CompressPdfScreen = ({ route, navigation }: Props) => {
   const { document: targetDoc } = route.params;
   const { addDocument } = useDocuments();
   const { showAlert } = useAlert();
+
+  // Bottom toast state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastIcon, setToastIcon] = useState<string>('✓');
+  const showToast = (message: string, icon = '✓') => {
+    setToastIcon(icon);
+    setToastMessage(message);
+  };
 
   // Mode: high, low, or custom
   const [compressionLevel, setCompressionLevel] = useState<'high' | 'low' | 'custom'>('custom');
@@ -247,11 +256,7 @@ export const CompressPdfScreen = ({ route, navigation }: Props) => {
         Math.round(((origBytesToCompare - actualCompressedBytes) / origBytesToCompare) * 100)
       );
 
-      showAlert({
-        title: 'PDF Compressed',
-        message: `Successfully compressed "${targetDoc.title}"!\nSize reduced from ${formatFileSize(origBytesToCompare)} to ${formatFileSize(actualCompressedBytes)} (${savingsPercent}% savings).`,
-        type: 'success',
-      });
+      showToast(`PDF compressed — ${formatFileSize(origBytesToCompare)} → ${formatFileSize(actualCompressedBytes)} (${savingsPercent}% saved)`, '✅');
 
       navigation.navigate('MainTabs');
     } catch (err: any) {
@@ -653,6 +658,12 @@ export const CompressPdfScreen = ({ route, navigation }: Props) => {
       </View>
 
       <LoadingOverlay visible={isProcessing} message={loadingText} />
+      <BottomToast
+        visible={!!toastMessage}
+        message={toastMessage || ''}
+        icon={toastIcon}
+        onDismiss={() => setToastMessage(null)}
+      />
     </SafeAreaView>
   );
 };

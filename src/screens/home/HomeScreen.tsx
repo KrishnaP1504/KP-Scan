@@ -203,11 +203,7 @@ export const HomeScreen = () => {
 
     setTimeout(() => {
       setIsLoading(false);
-      showAlert({
-        title: 'Uploaded to Google Drive',
-        message: `"${config.fileName}.pdf" has been uploaded successfully to your Google Drive (${config.folder.path}).`,
-        type: 'success',
-      });
+      showToast(`"${config.fileName}.pdf" uploaded to Google Drive`, '☁️');
     }, 900);
   };
 
@@ -271,11 +267,7 @@ export const HomeScreen = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      showAlert({
-        title: '✨ AI Assistant Insight',
-        message: `Document "${doc.title}" analyzed successfully. All text, numbers, and layout structured cleanly.`,
-        type: 'success',
-      });
+      showToast(`"${doc.title}" analyzed successfully`, '✨');
     }, 850);
   };
 
@@ -556,11 +548,7 @@ export const HomeScreen = () => {
           if (activeDoc) {
             setIsDriveModalOpen(true);
           } else {
-            showAlert({
-              title: 'Connected',
-              message: 'Successfully connected your Google account for Drive sync.',
-              type: 'success',
-            });
+            showToast('Google account connected for Drive sync', '✅');
           }
         }}
       />

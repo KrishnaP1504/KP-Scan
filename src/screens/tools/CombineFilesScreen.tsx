@@ -20,6 +20,7 @@ import { ScannedDocument, ScannedPage } from '../../types/document';
 import { DocumentScannerService } from '../../services/DocumentScannerService';
 import { FileStorageService, formatFileSize } from '../../services/FileStorageService';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { BottomToast } from '../../components/BottomToast';
 import { Colors } from '../../constants/colors';
 import { normalizeFont } from '../../utils/responsive';
 import RNFS from 'react-native-fs';
@@ -30,6 +31,14 @@ export const CombineFilesScreen = ({ route, navigation }: Props) => {
   const { initialDocument } = route.params || {};
   const { documents, addDocument } = useDocuments();
   const { showAlert } = useAlert();
+
+  // Bottom toast state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastIcon, setToastIcon] = useState<string>('✓');
+  const showToast = (message: string, icon = '✓') => {
+    setToastIcon(icon);
+    setToastMessage(message);
+  };
 
   // Selected files list
   const [selectedDocs, setSelectedDocs] = useState<ScannedDocument[]>(
@@ -138,11 +147,7 @@ export const CombineFilesScreen = ({ route, navigation }: Props) => {
 
         if (importedDocs.length > 0) {
           setSelectedDocs((prev) => [...prev, ...importedDocs]);
-          showAlert({
-            title: 'Files Added',
-            message: `Added ${importedDocs.length} file${importedDocs.length > 1 ? 's' : ''} to combine list.`,
-            type: 'success',
-          });
+          showToast(`Added ${importedDocs.length} file${importedDocs.length > 1 ? 's' : ''} to combine list`, '✅');
         }
       }
     } catch (err: any) {
@@ -277,11 +282,7 @@ export const CombineFilesScreen = ({ route, navigation }: Props) => {
 
       setIsProcessing(false);
 
-      showAlert({
-        title: 'Files Combined Successfully',
-        message: `Combined ${selectedDocs.length} files (${totalPages} pages) into "${cleanTitle}.pdf".`,
-        type: 'success',
-      });
+      showToast(`Combined ${selectedDocs.length} files (${totalPages} pages) into PDF`, '✅');
 
       navigation.navigate('MainTabs');
     } catch (err: any) {
@@ -580,6 +581,12 @@ export const CombineFilesScreen = ({ route, navigation }: Props) => {
       </Modal>
 
       <LoadingOverlay visible={isProcessing} message={loadingText} />
+      <BottomToast
+        visible={!!toastMessage}
+        message={toastMessage || ''}
+        icon={toastIcon}
+        onDismiss={() => setToastMessage(null)}
+      />
     </SafeAreaView>
   );
 };
