@@ -22,8 +22,8 @@ export const getStorageLocations = (): StorageFolderOption[] => [
   {
     id: 'documents',
     name: 'Documents Folder',
-    subTitle: 'App Documents > KP_Scan',
-    path: `${RNFS.DocumentDirectoryPath}/KP_Scan`,
+    subTitle: 'Internal storage > Documents > KP_Scan',
+    path: `${RNFS.DownloadDirectoryPath}/Documents/KP_Scan`,
     icon: '📁',
   },
   {
@@ -134,6 +134,11 @@ export const FileStorageService = {
       const pdfBase64 = await pdfDoc.saveAsBase64();
       await RNFS.writeFile(filePath, pdfBase64, 'base64');
 
+      // 4. Notify media scanner so file appears in file manager immediately
+      try {
+        await RNFS.scanFile(filePath);
+      } catch {}
+
       return { success: true, filePath };
     } catch (err: any) {
       console.warn('PDF saving error:', err);
@@ -184,6 +189,13 @@ export const FileStorageService = {
           await RNFS.copyFile(cleanLocalUri, destPath);
           savedPaths.push(destPath);
         }
+      }
+
+      // Notify media scanner so files appear in file manager immediately
+      for (const sp of savedPaths) {
+        try {
+          await RNFS.scanFile(sp);
+        } catch {}
       }
 
       return { success: true, filePaths: savedPaths };

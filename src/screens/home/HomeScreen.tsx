@@ -149,11 +149,7 @@ export const HomeScreen = () => {
       setIsLoading(false);
 
       if (result.success && result.filePath) {
-        showAlert({
-          title: 'PDF Saved Successfully',
-          message: `File saved to:\n${result.filePath}\n\nYou can access it anytime in your device file manager.`,
-          type: 'success',
-        });
+        showToast(`PDF saved to ${config.selectedFolder.name}`, '✅');
       } else {
         showAlert({
           title: 'Save Failed',
@@ -170,11 +166,7 @@ export const HomeScreen = () => {
       setIsLoading(false);
 
       if (result.success && result.filePaths) {
-        showAlert({
-          title: 'JPEG Saved Successfully',
-          message: `Saved ${result.filePaths.length} page(s) to:\n${config.selectedFolder.path}`,
-          type: 'success',
-        });
+        showToast(`${result.filePaths.length} image(s) saved to ${config.selectedFolder.name}`, '✅');
       } else {
         showAlert({
           title: 'Save Failed',
